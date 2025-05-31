@@ -1,0 +1,69 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import tempfile
+import subprocess
+import uuid
+import os
+
+app = Flask(__name__)
+CORS(app)
+
+DOCKER_IMAGES = {
+    'python': 'code_executor_python',
+    'javascript': 'code_executor_js'
+    # 'c': 'code_executor_c',
+    # 'cpp': 'code_executor_cpp',
+    # 'java': 'code_executor_java'
+}
+
+def run_code(code, language):
+    if language not in DOCKER_IMAGES:
+        raise ValueError(f"Unsupported language: {language}")
+
+    image = DOCKER_IMAGES[language]
+    ext = {
+        'python': '.py',
+        'javascript': '.js'
+        # 'c': '.c',
+        # 'cpp': '.cpp',
+        # 'java': '.java'
+    }[language]
+
+    filename = f'code{ext}'
+    temp_dir = tempfile.mkdtemp()
+    file_path = os.path.join(temp_dir, filename)
+
+    with open(file_path, 'w') as f:
+        f.write(code)
+
+    container_name = f"code-runner-{uuid.uuid4().hex[:8]}"
+
+    try:
+        result = subprocess.run([
+            'docker', 'run', '--rm',
+            '-v', f'{temp_dir}:/code',
+            image
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, text=True)
+
+        return result.stdout, result.stderr
+    finally:
+        os.remove(file_path)
+        os.rmdir(temp_dir)
+
+@app.route('/run', methods=['POST'])
+def run():
+    data = request.get_json()
+    code = data.get('code')
+    language = data.get('language')
+
+    if not code or not language:
+        return jsonify({'output': '', 'error': 'Missing code or language'}), 400
+
+    try:
+        output, error = run_code(code, language)
+        return jsonify({'output': output, 'error': error})
+    except Exception as e:
+        return jsonify({'output': '', 'error': str(e)})
+
+if __name__ == '__main__':
+    app.run(debug=True)

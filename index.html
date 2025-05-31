@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Editor with Terminal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #1e1e1e;
+      color: #f0f0f0;
+    }
+    header {
+      background: #282c34;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .editor-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #editor {
+      flex: 1;
+    }
+    .controls {
+      display: flex;
+      background: #2d2d2d;
+      padding: 10px;
+      align-items: center;
+    }
+    select, button {
+      margin-right: 10px;
+      padding: 5px;
+    }
+    .output {
+      background: #000;
+      padding: 1rem;
+      height: 200px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <header>Code Editor with Terminal Output</header>
+  <div class="editor-container">
+    <div class="controls">
+      <select id="language">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+       <!-- <option value="c">C</option> 
+        <option value="cpp">C++</option>
+        <option value="java">Java</option> -->
+      </select>
+      <button onclick="runCode()">Run</button>
+    </div>
+    <textarea id="editor"></textarea>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> -->
+
+  <script>
+    const templates = {
+      python: `# Python
+print("Hello from Python!")`,
+      javascript: `// JavaScript
+console.log("Hello from JavaScript!");`
+     /* c: `// C
+#include <stdio.h>
+int main() {
+    printf("Hello from C!\n");
+    return 0;
+}`,
+      cpp: `// C++
+#include <iostream>
+using namespace std;
+int main() {
+    cout << "Hello from C++!" << endl;
+    return 0;
+}`,
+      java: `// Java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello from Java!");
+    }
+}` */
+};
+
+    const modeMap = {
+      python: "python",
+      javascript: "javascript"
+      /* c: "text/x-csrc",
+      cpp: "text/x-c++src",
+      java: "text/x-java" */
+    };
+
+    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+      mode: modeMap["python"],
+      theme: "default",
+      lineNumbers: true,
+    });
+
+    document.getElementById("language").addEventListener("change", (e) => {
+      const lang = e.target.value;
+      editor.setOption("mode", modeMap[lang]);
+      editor.setValue(templates[lang]);
+    });
+
+    function runCode() {
+      const language = document.getElementById("language").value;
+      const code = editor.getValue();
+
+      fetch("http://localhost:5000/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code, language })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("output").textContent =
+          (data.output || "") + (data.error ? "\nError:\n" + data.error : "");
+      })
+      .catch(err => {
+        document.getElementById("output").textContent = "Could not connect to backend.\n" + err;
+      });
+    }
+
+    // Set default
+    editor.setValue(templates.python);
+  </script>
+</body>
+</html>

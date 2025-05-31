@@ -5,7 +5,7 @@ import os
 
 DOCKER_IMAGES = {
     'python': 'code_executor_python',
-    'javascript': 'code_executor_js',
+    #'javascript': 'code_executor_js',
     #'c': 'code_executor_c',
     #'cpp': 'code_executor_cpp',
     #'java': 'code_executor_java'
@@ -18,7 +18,7 @@ def run_code(code, language):
     image = DOCKER_IMAGES[language]
     ext = {
         'python': '.py',
-        'javascript': '.js',
+        #'javascript': '.js',
         #'c': '.c',
         #'cpp': '.cpp',
         #'java': '.java'

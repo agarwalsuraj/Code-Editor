@@ -53,8 +53,8 @@
     <div class="controls">
       <select id="language">
         <option value="python">Python</option>
-        <option value="javascript">JavaScript</option>
-       <!-- <option value="c">C</option> 
+        <!-- <option value="javascript">JavaScript</option>
+        <option value="c">C</option> 
         <option value="cpp">C++</option>
         <option value="java">Java</option> -->
       </select>
@@ -66,16 +66,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> -->
 
   <script>
     const templates = {
       python: `# Python
-print("Hello from Python!")`,
-      javascript: `// JavaScript
+print("Hello from Python!")`
+     /* javascript: `// JavaScript
 console.log("Hello from JavaScript!");`
-     /* c: `// C
+      c: `// C
 #include <stdio.h>
 int main() {
     printf("Hello from C!\n");
@@ -97,9 +97,9 @@ public class Main {
 };
 
     const modeMap = {
-      python: "python",
-      javascript: "javascript"
-      /* c: "text/x-csrc",
+      python: "python"
+      /* javascript: "javascript"
+      c: "text/x-csrc",
       cpp: "text/x-c++src",
       java: "text/x-java" */
     };
